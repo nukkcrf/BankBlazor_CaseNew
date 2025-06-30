@@ -10,13 +10,13 @@ namespace BankBlazor.API.Models;
 public partial class Transaction
 {
     [Key]
-    public DateTime TransactionDate { get; set; }
+    public DateTime Date { get; set; }
 
     public int TransactionId { get; set; }
 
     public int AccountId { get; set; }
 
-    public DateOnly Date { get; set; }
+    
 
     [StringLength(50)]
     public string Type { get; set; } = null!;

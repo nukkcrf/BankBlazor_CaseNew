@@ -37,11 +37,14 @@ namespace BankBlazor.API.Controllers
         }
 
         // GET api/accounts/5/transactions
+
         [HttpGet("{id}/transactions")]
         public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactions(int id)
-            => await _context.Transactions
-                              .Where(t => t.AccountId == id)
-                              .OrderByDescending(t => t.TransactionDate)
-                              .ToListAsync();
+        {
+            return await _context.Transactions
+                                 .Where(t => t.AccountId == id)
+                                 .OrderByDescending(t => t.Date)
+                                 .ToListAsync();
+        }
     }
 }

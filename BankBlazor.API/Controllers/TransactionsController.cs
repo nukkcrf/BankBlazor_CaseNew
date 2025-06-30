@@ -29,7 +29,7 @@ namespace BankBlazor.API.Controllers
             {
                 AccountId = req.AccountId,
                 Amount = req.Amount,
-                TransactionDate = DateTime.UtcNow,
+                Date = DateTime.UtcNow,
                 Type = "Deposit"
             };
             _context.Transactions.Add(tx);
@@ -52,7 +52,7 @@ namespace BankBlazor.API.Controllers
             {
                 AccountId = req.AccountId,
                 Amount = -req.Amount,
-                TransactionDate = DateTime.UtcNow,
+                Date = DateTime.UtcNow,
                 Type = "Withdraw"
             };
             _context.Transactions.Add(tx);
@@ -83,7 +83,7 @@ namespace BankBlazor.API.Controllers
                 {
                     AccountId = from.AccountId,
                     Amount = -req.Amount,
-                    TransactionDate = DateTime.UtcNow,
+                    Date = DateTime.UtcNow,
                     Type = "TransferOut",
                    
                 });
@@ -91,7 +91,7 @@ namespace BankBlazor.API.Controllers
                 {
                     AccountId = to.AccountId,
                     Amount = req.Amount,
-                    TransactionDate = DateTime.UtcNow,
+                    Date = DateTime.UtcNow,
                     Type = "TransferIn",
                    
                 });
