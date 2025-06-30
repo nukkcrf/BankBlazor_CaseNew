@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "BankBlazor.Client\\BankBlazor.Client.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "BankBlazor.API\\BankBlazor.API.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
