@@ -1,0 +1,33 @@
+﻿<h3>FetchAccounts</h3>
+
+@inject HttpClient Http
+
+<h3>Accounts</h3>
+@if (accounts == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <ul>
+        @foreach (var acc in accounts)
+        {
+            <li>Account ID: @acc.AccountId - Balance: @acc.Balance kr</li>
+        }
+    </ul>
+}
+
+@code {
+    private AccountDto[] accounts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        accounts = await Http.GetFromJsonAsync<AccountDto[]>("api/accounts");
+    }
+
+    public class AccountDto
+    {
+        public int AccountId { get; set; }
+        public decimal Balance { get; set; }
+    }
+}
