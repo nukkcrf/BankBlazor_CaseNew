@@ -1,33 +1,42 @@
-﻿<h3>FetchAccounts</h3>
+﻿@inject HttpClient Http
 
-@inject HttpClient Http
+<h3>Account Profile</h3>
 
-<h3>Accounts</h3>
-@if (accounts == null)
+<select @onchange="OnSelect">
+    <option value="">Choose account</option>
+    @foreach (var acc in accounts)
+    {
+        <option value="@acc.AccountId">@($"{acc.AccountId} – {acc.Balance} kr")</option>
+    }
+</select>
+
+@if (selectedTx != null)
 {
-    <p>Loading...</p>
-}
-else
-{
+    <h4>Transactions</h4>
     <ul>
-        @foreach (var acc in accounts)
+        @foreach (var tx in selectedTx)
         {
-            <li>Account ID: @acc.AccountId - Balance: @acc.Balance kr</li>
+            <li>@($"{tx.TransactionDate:g}: {tx.Type} {tx.Amount} kr")</li>
         }
     </ul>
 }
 
 @code {
     private AccountDto[] accounts;
+    private TransactionDto[] selectedTx;
 
     protected override async Task OnInitializedAsync()
+        => accounts = await Http.GetFromJsonAsync<AccountDto[]>("api/accounts");
+
+    private async Task OnSelect(ChangeEventArgs e)
     {
-        accounts = await Http.GetFromJsonAsync<AccountDto[]>("api/accounts");
+        var id = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(id))
+        {
+            selectedTx = await Http.GetFromJsonAsync<TransactionDto[]>($"api/accounts/{id}/transactions");
+        }
     }
 
-    public class AccountDto
-    {
-        public int AccountId { get; set; }
-        public decimal Balance { get; set; }
-    }
+    class AccountDto { public int AccountId { get; set; } public decimal Balance { get; set; } }
+    class TransactionDto { public int TransactionId { get; set; } public DateTime TransactionDate { get; set; } public string Type { get; set; } public decimal Amount { get; set; } }
 }
