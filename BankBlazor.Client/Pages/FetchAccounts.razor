@@ -1,43 +1,72 @@
 ﻿@page "/fetch-accounts"
+@using BankBlazor.Client.Models
 @inject HttpClient Http
 
 <h3>Account Profile</h3>
 
-<select @onchange="OnSelect">
-    <option value="">Choose account</option>
-    @foreach (var acc in accounts)
-    {
-        <option value="@acc.AccountId">@($"{acc.AccountId} – {acc.Balance} kr")</option>
-    }
-</select>
-
-@if (selectedTx != null)
+@if (accounts is null)
 {
-    <h4>Transactions</h4>
-    <ul>
-        @foreach (var tx in selectedTx)
+    <p><em>Loading accounts…</em></p>
+}
+else
+{
+    <InputSelect @bind-Value="selectedAccountId" class="form-select mb-3">
+        <option value="">-- Choose account --</option>
+        @foreach (var acc in accounts)
         {
-            <li>@($"{tx.TransactionDate:g}: {tx.Type} {tx.Amount} kr")</li>
+            <option value="@acc.AccountId">
+                @($"ID {acc.AccountId} – {acc.Balance} kr")
+            </option>
         }
-    </ul>
+    </InputSelect>
+}
+
+@if (selectedAccountId.HasValue)
+{
+    @if (selectedTx is null)
+    {
+        <p><em>Loading transactions…</em></p>
+    }
+    else if (!selectedTx.Any())
+    {
+        <p><em>No transactions for this account.</em></p>
+    }
+    else
+    {
+        <h4>Transactions</h4>
+        <ul class="list-group">
+            @foreach (var tx in selectedTx)
+            {
+                <li class="list-group-item">
+                    @tx.TransactionDate.ToLocalTime():g
+                    — @tx.Type
+                    — @tx.Amount kr
+                </li>
+            }
+        </ul>
+    }
 }
 
 @code {
-    private AccountDto[] accounts;
-    private TransactionDto[] selectedTx;
+    private AccountDto[]? accounts;
+    private TransactionDto[]? selectedTx;
+    private int? selectedAccountId;
 
     protected override async Task OnInitializedAsync()
-        => accounts = await Http.GetFromJsonAsync<AccountDto[]>("api/accounts");
-
-    private async Task OnSelect(ChangeEventArgs e)
     {
-        var id = e.Value?.ToString();
-        if (!string.IsNullOrEmpty(id))
-        {
-            selectedTx = await Http.GetFromJsonAsync<TransactionDto[]>($"api/accounts/{id}/transactions");
-        }
+        accounts = await Http.GetFromJsonAsync<AccountDto[]>("api/accounts");
     }
 
-    class AccountDto { public int AccountId { get; set; } public decimal Balance { get; set; } }
-    class TransactionDto { public int TransactionId { get; set; } public DateTime TransactionDate { get; set; } public string Type { get; set; } public decimal Amount { get; set; } }
+    // Autokörs av @bind-Value
+    private async Task OnAccountChanged(ChangeEventArgs _)
+    {
+        if (selectedAccountId.HasValue)
+        {
+            selectedTx = await Http.GetFromJsonAsync<TransactionDto[]>($"api/accounts/{selectedAccountId}/transactions");
+        }
+        else
+        {
+            selectedTx = null;
+        }
+    }
 }
