@@ -1,4 +1,4 @@
-﻿namespace BankBlazor.API.Models.Dto
+﻿namespace BankBlazor.API.Dto
 {
     public class DepositRequest
     {

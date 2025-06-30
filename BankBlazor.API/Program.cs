@@ -1,4 +1,7 @@
 
+using BankBlazor.API.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace BankBlazor.API
 {
     public class Program
@@ -6,6 +9,10 @@ namespace BankBlazor.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddDbContext<BankBlazorContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    ));
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -18,6 +25,10 @@ namespace BankBlazor.API
 
             var app = builder.Build();
 
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
             app.UseSwagger();
             app.UseSwaggerUI();
             app.UseCors();
