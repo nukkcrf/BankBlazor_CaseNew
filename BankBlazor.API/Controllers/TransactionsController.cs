@@ -85,7 +85,7 @@ namespace BankBlazor.API.Controllers
                     Amount = -req.Amount,
                     TransactionDate = DateTime.UtcNow,
                     Type = "TransferOut",
-                    RelatedAccountId = to.AccountId
+                   
                 });
                 _context.Transactions.Add(new Transaction
                 {
@@ -93,7 +93,7 @@ namespace BankBlazor.API.Controllers
                     Amount = req.Amount,
                     TransactionDate = DateTime.UtcNow,
                     Type = "TransferIn",
-                    RelatedAccountId = from.AccountId
+                   
                 });
 
                 await _context.SaveChangesAsync();
