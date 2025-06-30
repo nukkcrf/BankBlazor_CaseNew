@@ -1,0 +1,33 @@
+﻿@page "/deposit"
+@using BankBlazor.Client.Models
+@inject HttpClient Http
+
+<h3>Deposit</h3>
+
+<EditForm Model="depositModel" OnValidSubmit="HandleDeposit">
+    <!-- fälten för AccountId och Amount -->
+</EditForm>
+
+@if (resultMessage != null)
+{
+    <div class="alert alert-info mt-3">@resultMessage</div>
+}
+
+@code {
+    private DepositRequest depositModel = new();
+    private string? resultMessage;
+
+    private async Task HandleDeposit()
+    {
+        var response = await Http.PostAsJsonAsync("api/transactions/deposit", depositModel);
+        if (response.IsSuccessStatusCode)
+        {
+            var updated = await response.Content.ReadFromJsonAsync<AccountDto>();
+            resultMessage = $"New balance: {updated?.Balance} kr";
+        }
+        else
+        {
+            resultMessage = await response.Content.ReadAsStringAsync();
+        }
+    }
+}

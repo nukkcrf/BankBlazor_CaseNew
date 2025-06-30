@@ -1,0 +1,46 @@
+﻿@page "/transfer"
+@inject HttpClient Http
+@using BankBlazor.Client.Models
+
+<h3>Transfer</h3>
+
+<EditForm Model="transferModel" OnValidSubmit="HandleTransfer">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputNumber @bind-Value="transferModel.FromAccountId" placeholder="From Account ID" class="form-control mb-2" />
+    <InputNumber @bind-Value="transferModel.ToAccountId" placeholder="To Account ID" class="form-control mb-2" />
+    <InputNumber @bind-Value="transferModel.Amount" placeholder="Amount" class="form-control mb-2" />
+
+    <button type="submit" class="btn btn-primary">Transfer</button>
+</EditForm>
+
+@if (transferMessage != null)
+{
+    <div class="alert alert-info mt-3">@transferMessage</div>
+}
+
+@code {
+    TransferRequest transferModel = new();
+    string? transferMessage;
+
+    async Task HandleTransfer()
+    {
+        var res = await Http.PostAsJsonAsync("api/transactions/transfer", transferModel);
+        if (res.IsSuccessStatusCode)
+        {
+            transferMessage = "Transfer successful!";
+        }
+        else
+        {
+            transferMessage = await res.Content.ReadAsStringAsync();
+        }
+    }
+
+    public class TransferRequest
+    {
+        public int FromAccountId { get; set; }
+        public int ToAccountId { get; set; }
+        public decimal Amount { get; set; }
+    }
+}

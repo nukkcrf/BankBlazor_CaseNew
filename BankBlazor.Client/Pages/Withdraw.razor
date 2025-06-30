@@ -1,0 +1,65 @@
+﻿@page "/withdraw"
+@inject HttpClient Http
+@using BankBlazor.Client.Models 
+
+<h3>Withdraw</h3>
+
+<EditForm Model="withdrawModel" OnValidSubmit="HandleWithdraw">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="accountId" class="form-label">Account ID</label>
+        <InputNumber id="accountId" class="form-control" @bind-Value="withdrawModel.AccountId" />
+    </div>
+
+    <div class="mb-3">
+        <label for="amount" class="form-label">Amount</label>
+        <InputNumber id="amount" class="form-control" @bind-Value="withdrawModel.Amount" />
+    </div>
+
+    <button type="submit" class="btn btn-danger">Withdraw</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(resultMessage))
+{
+    <div class="alert alert-info mt-3">@resultMessage</div>
+}
+
+@code {
+    // Modell för withdraw request
+    private WithdrawRequest withdrawModel = new WithdrawRequest();
+    private string? resultMessage;
+
+    // Den metod som OnValidSubmit anropar
+    private async Task HandleWithdraw()
+    {
+        // Anropa API:t
+        var response = await Http.PostAsJsonAsync("api/transactions/withdraw", withdrawModel);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Lyssna på det uppdaterade kontot
+            var updatedAccount = await response.Content.ReadFromJsonAsync<AccountDto>();
+            resultMessage = $"New balance: {updatedAccount?.Balance} kr";
+        }
+        else
+        {
+            var errorText = await response.Content.ReadAsStringAsync();
+            resultMessage = $"Error: {errorText}";
+        }
+    }
+
+    // Dto-klasser, du kan också flytta dessa till en gemensam mapp
+    public class WithdrawRequest
+    {
+        public int AccountId { get; set; }
+        public decimal Amount { get; set; }
+    }
+
+    public class AccountDto
+    {
+        public int AccountId { get; set; }
+        public decimal Balance { get; set; }
+    }
+}
