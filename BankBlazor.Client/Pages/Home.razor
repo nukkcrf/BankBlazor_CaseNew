@@ -1,34 +1,52 @@
 ﻿@page "/"
+@using BankBlazor.Client.Models
+@using System.Net.Http.Json
+@inject HttpClient Http
 
-<PageTitle>Home</PageTitle>
-
-<section class="hero-container">
-    <div class="hero-content">
-        <img src="/images/hero.jpg" class="hero-img">
+<!-- Hero Section -->
+<section class="hero-section" style="background-image:url('/images/hero.jpg'); background-size:cover; background-position:center; height:350px;">
+    <div class="hero-overlay">
+        <h1 class="display-4">Welcome to Bank Blazor</h1>
+        <p class="lead">Manage your accounts and transactions seamlessly.</p>
+        <NavLink class="btn btn-primary btn-lg" href="/dashboard">Go to Dashboard</NavLink>
     </div>
 </section>
 
-<section id="greeting" class="container">
-    <h2>Hello Admin! The next Scottish bank holiday is <strong>{holiday}</strong> on <strong>{date}</strong></h2>
-</section>
-
-
-<section id="dashboard" class="container">
-    <h2>Customer Dashboard</h2>
-    <div class="info">
-        <p><strong>Name:</strong> John Doe</p>
-        <p><strong>Email:</strong> johndoe@email.com</p>
-        <p><strong>Phone:</strong> +1234567890</p>
+<!-- Holiday Card -->
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger my-4 mx-auto" style="max-width:600px;">@errorMessage</div>
+}
+else if (nextHoliday == null)
+{
+    <p class="text-center my-4"><em>Loading next Scottish bank holiday…</em></p>
+}
+else
+{
+    <div class="card my-3 mx-auto" style="max-width:600px">
+        <div class="card-body text-center">
+            <h5>Next Scottish Bank Holiday</h5>
+            <p>
+                <strong>@nextHoliday.Title</strong><br />
+                @nextHoliday.Date.ToString("d MMM yyyy")
+            </p>
+        </div>
     </div>
-</section>
+}
 
-<section id="transactions" class="container">
-    <h2>Account Transactions</h2>
-    <div class="account">
-        <p><strong>Account Number:</strong> 123456789</p>
-        <p><strong>Balance:</strong> $5,000</p>
-    </div>
-    <button>Deposit</button>
-    <button>Withdraw</button>
-    <button>Transfer</button>
-</section>
+@code {
+    private HolidayDto? nextHoliday;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            nextHoliday = await Http.GetFromJsonAsync<HolidayDto>("api/holidays/next-scotland");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load holiday: {ex.Message}";
+        }
+    }
+}

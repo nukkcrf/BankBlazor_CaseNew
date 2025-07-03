@@ -1,31 +1,41 @@
-﻿<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">BankApp</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="">Home</NavLink>
-                </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="fetchaccounts">Dashboard</NavLink>
-                </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="transactions">Transactions</NavLink>
-                </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="deposit">Deposit</NavLink>
-                </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="withdraw">Withdraw</NavLink>
-                </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="transfer">Transfer</NavLink>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+﻿@using Microsoft.AspNetCore.Components.Routing
+
+<aside class="sidebar bg-secondary text-white vh-100 p-3">
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item mb-2">
+            <NavLink href="/" class="nav-link text-white" Match="NavLinkMatch.All">
+                Home
+            </NavLink>
+        </li>
+        <li class="nav-item mb-2">
+            <NavLink href="/dashboard" class="nav-link text-white">
+                Dashboard
+            </NavLink>
+        </li>
+        <li class="nav-item mb-2">
+            <NavLink href="/fetch-accounts" class="nav-link text-white">
+                Customer Accounts
+            </NavLink>
+        </li>
+        <li class="nav-item mb-2">
+            <NavLink href="/deposit" class="nav-link text-white">
+                Deposit
+            </NavLink>
+        </li>
+        <li class="nav-item mb-2">
+            <NavLink href="/withdraw" class="nav-link text-white">
+                Withdraw
+            </NavLink>
+        </li>
+        <li class="nav-item mb-2">
+            <NavLink href="/account_transfer" class="nav-link text-white">
+                Transfer
+            </NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink href="/transactions" class="nav-link text-white">
+                Transactions
+            </NavLink>
+        </li>
+    </ul>
+</aside>

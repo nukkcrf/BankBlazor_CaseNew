@@ -1,6 +1,5 @@
 ﻿using BankBlazor.API.Dto;
 using BankBlazor.API.Models;
-using BankBlazor.API.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +15,7 @@ namespace BankBlazor.API.Controllers
         {
             _context = context;
         }
+
 
         [HttpPost("deposit")]
         public async Task<IActionResult> Deposit([FromBody] DepositRequest req)

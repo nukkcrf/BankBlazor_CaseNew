@@ -1,0 +1,58 @@
+﻿@page "/dashboard"
+@using BankBlazor.Client.Models
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<HeadContent>
+    <title>Dashboard – BankBlazor</title>
+</HeadContent>
+
+<h3>Dashboard</h3>
+<p>Welcome back, manage your accounts and transactions.</p>
+
+@if (accounts == null)
+{
+    <p><em>Loading accounts…</em></p>
+}
+else if (!accounts.Any())
+{
+    <p><em>No accounts found.</em></p>
+}
+else
+{
+    <div class="row">
+        @foreach (var acc in accounts)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5>Account ID: @acc.AccountId</h5>
+                            </div>
+                            <h4>@acc.Balance.ToString("C")</h4>
+                        </div>
+                        <p class="mt-2 text-success small">Recent activity shown on the left.</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private AccountDto[]? accounts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            accounts = await Http.GetFromJsonAsync<AccountDto[]>("api/accounts");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading accounts: {ex.Message}");
+            accounts = Array.Empty<AccountDto>();
+        }
+    }
+}

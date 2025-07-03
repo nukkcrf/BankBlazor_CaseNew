@@ -1,11 +1,54 @@
 ﻿@inherits LayoutComponentBase
 
-<NavMenu />
+<!-- HEADER -->
+<header class="bg-dark text-white d-flex align-items-center px-4 py-2">
+    <NavLink href="/" class="d-flex align-items-center text-decoration-none">
+        <img src="images/logo.png" alt="Bank Blazor Logo" style="height:40px; margin-right:10px;" />
+        <h1 class="h5 m-0">Bank Blazor</h1>
+    </NavLink>
+    <nav class="ms-auto">
+        <ul class="nav">
+            <li class="nav-item">
+                <NavLink href="/" class="nav-link text-white" Match="NavLinkMatch.All">Home</NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink href="/dashboard" class="nav-link text-white">Dashboard</NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink href="/transactions" class="nav-link text-white">Transactions</NavLink>
+            </li>
+        </ul>
+    </nav>
+</header>
 
-<main>
-    @Body
-</main>  
+<!-- SIDEBAR + INNEHÅLL -->
+<div class="d-flex">
+    <!-- SIDOMENY -->
+    <aside class="bg-secondary text-white p-3" style="width:240px; min-height:calc(100vh - 56px);">
+        <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+                <NavLink href="/fetch-accounts" class="nav-link text-white">View Customer Accounts</NavLink>
+            </li>
+            <li class="nav-item mb-2">
+                <NavLink href="/account_by_id" class="nav-link text-white">Info By Account ID</NavLink>
+            </li>
+            <li class="nav-item mb-2">
+                <NavLink href="/deposit" class="nav-link text-white">Cash Deposit/Withdraw</NavLink>
+            </li>
+            <li class="nav-item mb-2">
+                <NavLink href="/account_transfer" class="nav-link text-white">Account Transfer</NavLink>
+            </li>
+           
+        </ul>
+    </aside>
 
-<footer>
-    <p>&copy; 2025 Bank Blazor. All rights reserved.</p>
+    <!-- HUVUDINNEHÅLL -->
+    <main class="flex-fill p-4">
+        @Body
+    </main>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-dark text-white text-center py-2">
+    © 2025 Bank Blazor. All rights reserved.
 </footer>

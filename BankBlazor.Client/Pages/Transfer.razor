@@ -1,46 +1,140 @@
-﻿@page "/transfer"
-@inject HttpClient Http
+﻿@page "/account_transfer"
 @using BankBlazor.Client.Models
+@inject HttpClient Http
 
-<h3>Transfer</h3>
+<h3>Money Transfer</h3>
 
-<EditForm Model="transferModel" OnValidSubmit="HandleTransfer">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<div class="mb-3">
+    <label for="senderAccountIdInput" class="form-label">Sender Account ID:</label>
+    <input type="number"
+           id="senderAccountIdInput"
+           class="form-control"
+           @bind="senderAccountId"
+           min="1" />
+    <button class="btn btn-primary mt-2"
+            @onclick="FetchSenderBalance"
+            disabled="@(senderAccountId == null || senderAccountId <= 0)">
+        Check Sender Balance
+    </button>
+</div>
 
-    <InputNumber @bind-Value="transferModel.FromAccountId" placeholder="From Account ID" class="form-control mb-2" />
-    <InputNumber @bind-Value="transferModel.ToAccountId" placeholder="To Account ID" class="form-control mb-2" />
-    <InputNumber @bind-Value="transferModel.Amount" placeholder="Amount" class="form-control mb-2" />
-
-    <button type="submit" class="btn btn-primary">Transfer</button>
-</EditForm>
-
-@if (transferMessage != null)
+@if (senderBalance.HasValue)
 {
-    <div class="alert alert-info mt-3">@transferMessage</div>
+    <div class="mb-3">
+        <p>Sender Current Balance: @senderBalance.Value.ToString("C")</p>
+
+        <label for="receiverAccountIdInput" class="form-label">Receiver Account ID:</label>
+        <input type="number"
+               id="receiverAccountIdInput"
+               class="form-control"
+               @bind="receiverAccountId"
+               min="1" />
+
+        <label for="amountInput" class="form-label">Amount to Transfer:</label>
+        <input type="number"
+               id="amountInput"
+               class="form-control"
+               @bind="amount"
+               min="0.01"
+               step="0.01" />
+
+        <button class="btn btn-primary mt-2"
+                @onclick="ProcessTransfer"
+                disabled="@( !IsValidTransfer() || isProcessing )">
+            Transfer
+        </button>
+    </div>
+
+    @if (successMessage != null)
+    {
+        <div class="alert alert-success">@successMessage</div>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
 }
 
-@code {
-    TransferRequest transferModel = new();
-    string? transferMessage;
+<div class="mt-3">
+    <a href="/" class="btn btn-link">Back to Home</a>
+</div>
 
-    async Task HandleTransfer()
+@code {
+    private int? senderAccountId;
+    private int? receiverAccountId;
+    private decimal? senderBalance;
+    private decimal? amount;
+    private bool isProcessing;
+    private string? successMessage;
+    private string? errorMessage;
+
+    private async Task FetchSenderBalance()
     {
-        var res = await Http.PostAsJsonAsync("api/transactions/transfer", transferModel);
-        if (res.IsSuccessStatusCode)
+        if (senderAccountId.HasValue && senderAccountId > 0)
         {
-            transferMessage = "Transfer successful!";
-        }
-        else
-        {
-            transferMessage = await res.Content.ReadAsStringAsync();
+            try
+            {
+                var response = await Http.GetAsync($"api/accounts/{senderAccountId}/balance");
+                if (response.IsSuccessStatusCode)
+                {
+                    senderBalance = await response.Content.ReadFromJsonAsync<decimal>();
+                    errorMessage = null;
+                    successMessage = null;
+                }
+                else
+                {
+                    errorMessage = $"Error fetching balance: {response.ReasonPhrase}";
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Unexpected error: {ex.Message}";
+            }
         }
     }
 
-    public class TransferRequest
+    private bool IsValidTransfer()
+        => senderAccountId.HasValue
+           && receiverAccountId.HasValue
+           && amount.HasValue
+           && senderBalance.HasValue
+           && amount > 0
+           && senderBalance >= amount;
+
+    private async Task ProcessTransfer()
     {
-        public int FromAccountId { get; set; }
-        public int ToAccountId { get; set; }
-        public decimal Amount { get; set; }
+        if (!IsValidTransfer() || isProcessing) return;
+
+        isProcessing = true;
+        errorMessage = successMessage = null;
+
+        var req = new TransferRequest
+            {
+                FromAccountId = senderAccountId.Value,
+                ToAccountId = receiverAccountId.Value,
+                Amount = amount.Value
+            };
+
+        try
+        {
+            var res = await Http.PostAsJsonAsync("api/transactions/transfer", req);
+            if (res.IsSuccessStatusCode)
+            {
+                successMessage = "Transfer completed!";
+                await FetchSenderBalance();
+            }
+            else
+            {
+                errorMessage = $"Transfer failed: {res.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+        }
     }
 }

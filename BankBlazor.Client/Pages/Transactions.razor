@@ -2,43 +2,41 @@
 @using BankBlazor.Client.Models
 @inject HttpClient Http
 
-<h3>Transactions</h3>
+<HeadContent>
+    <title>Transactions – BankApp</title>
+</HeadContent>
 
-@if (accounts == null)
+<h3>All Transactions</h3>
+
+@if (transactions == null)
 {
-    <p>Loading accounts...</p>
+    <p><em>Loading transactions…</em></p>
+}
+else if (!transactions.Any())
+{
+    <p><em>No transactions found.</em></p>
 }
 else
-{
-    <label>Select account:</label>
-    <select @onchange="OnAccountChanged" class="form-select mb-4">
-        <option value="">-- Choose account --</option>
-        @foreach (var acc in accounts)
-        {
-            <option value="@acc.AccountId">
-                @($"ID {acc.AccountId} – Balance {acc.Balance} kr")
-            </option>
-        }
-    </select>
-}
-
-@if (transactions != null)
 {
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>Date</th>
                 <th>Type</th>
+                <th>Operation</th>
                 <th>Amount</th>
+                <th>Balance</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var tx in transactions)
             {
                 <tr>
-                    <td>@tx.TransactionDate.ToLocalTime():g</td>
+                    <td>@tx.TransactionDate.ToString("g")</td>
                     <td>@tx.Type</td>
-                    <td>@tx.Amount kr</td>
+                    <td>@tx.Operation</td>
+                    <td>@tx.Amount.ToString("C")</td>
+                    <td>@tx.Balance.ToString("C")</td>
                 </tr>
             }
         </tbody>
@@ -46,26 +44,19 @@ else
 }
 
 @code {
-    private AccountDto[]? accounts;
     private TransactionDto[]? transactions;
 
     protected override async Task OnInitializedAsync()
     {
-        // Hämta alla konton
-        accounts = await Http.GetFromJsonAsync<AccountDto[]>("api/accounts");
-    }
-
-    private async Task OnAccountChanged(ChangeEventArgs e)
-    {
-        var val = e.Value?.ToString();
-        if (int.TryParse(val, out var accountId))
+        try
         {
-            // Hämta transaktioner för valt konto
-            transactions = await Http.GetFromJsonAsync<TransactionDto[]>($"api/accounts/{accountId}/transactions");
+            // Hämta alla transaktioner från din API (se till att du har en GET /api/transactions/all)
+            transactions = await Http.GetFromJsonAsync<TransactionDto[]>("api/transactions/all");
         }
-        else
+        catch (Exception ex)
         {
-            transactions = null;
+            Console.Error.WriteLine($"Error loading transactions: {ex.Message}");
+            transactions = Array.Empty<TransactionDto>();
         }
     }
 }
